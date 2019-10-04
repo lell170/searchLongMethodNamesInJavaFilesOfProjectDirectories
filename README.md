@@ -1,0 +1,1 @@
+simple (bash) script to recognize long method names in java source code files over all projects
