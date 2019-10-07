@@ -3,4 +3,4 @@
 ##### how to use: #####
 
 - $ bash main.sh <path for project> <limit>
-![prora-bash](prora-bash_v1.gif)
+![](searchLongMethodNamesInJavaFilesOfProjectDirectories.gif)
