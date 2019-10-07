@@ -22,6 +22,13 @@ if ! [[ "$RESULT_LIMIT" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
+read -p "include test packages? (y/n)?" include_test
+case "$include_test" in
+  y|Y ) echo "test packages are included";;
+  n|N ) echo "test packages are not included";;
+  * ) echo "invalid";;
+esac
+
 function createOrTruncateFile() {
   # some default operations for temp files
   if [[ -f "$1" ]]; then
@@ -35,12 +42,18 @@ createOrTruncateFile ${TMP_NOT_SORTED}
 createOrTruncateFile ${TMP_SORTED}
 
 # rocket science
-find "$SEARCH_PATH"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -exec \
+if [[ ${include_test} == "y" ]]; then
+  find "$SEARCH_PATH"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -exec \
   sed -n -r '/(public|protected|private|static|void)/p' {} \; |
-  sed -r '/(final|class|import|\;|=|enum)/d ; /()/s/[(].*$// ; s/.* //; /^.$/d' >>${TMP_NOT_SORTED}
+  sed -r '/(final|class|import|\;|=|enum|[*]|[/])/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>${TMP_NOT_SORTED}
+else
+  find "$SEARCH_PATH"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -not -path "*/test*" -exec \
+  sed -n -r '/(public|protected|private|static|void)/p' {} \; |
+  sed -r '/(final|class|import|\;|=|enum)|[*]|[/]/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>${TMP_NOT_SORTED}
+fi
 
 # next pipeline...
-awk '{ print length($0) " " $0; }' ${TMP_NOT_SORTED} | sort -r -n | uniq | cut -d " " -f2- >$TMP_SORTED
+awk '{ print length($0) " " $0; }' ${TMP_NOT_SORTED} | sort -r -n | uniq | cut -d " " -f2- > ${TMP_SORTED}
 
 RED='\033[0;31m\e[1m'
 YELLOW='\033[0;33m\e[1m'
@@ -56,7 +69,7 @@ function printLineAndSleep() {
 COUNTER=0
 while IFS= read -r line; do
   length=$(echo "{$line}" | wc -c)
-  if ((length > 37)); then
+  if ((length > 40)); then
     text=${RED}${line}${DEFAULT}
   elif ((length > 35)); then
     text=${YELLOW}${line}${DEFAULT}
@@ -68,7 +81,7 @@ while IFS= read -r line; do
   if [[ "$COUNTER" == "$RESULT_LIMIT" ]]; then
     break
   fi
-done <"$TMP_SORTED"
+done < "$TMP_SORTED"
 
 printf "\n"
 
