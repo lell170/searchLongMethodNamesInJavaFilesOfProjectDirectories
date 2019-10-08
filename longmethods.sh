@@ -10,23 +10,25 @@ if [[ $# -ne 2 ]]; then
   exit 1
 fi
 
-# make sure given directory exist and is an directory
-if ! [[ -d "$SEARCH_PATH" ]]; then
+# make sure given directory exists and is an directory
+if ! [[ -d $SEARCH_PATH ]]; then
   echo "given directory is not exist"
   exit 1
 fi
 
 # make sure second parameter is an number
-if ! [[ "$RESULT_LIMIT" =~ ^[0-9]+$ ]]; then
+if ! [[ $RESULT_LIMIT =~ ^[0-9]+$ ]]; then
   echo "given second parameter is not an number"
   exit 1
 fi
 
+# shellcheck disable=SC2162
 read -p "include test packages? (y/n)?" include_test
-case "$include_test" in
-  y|Y ) echo "test packages are included";;
-  n|N ) echo "test packages are not included";;
-  * ) echo "invalid";;
+
+case $include_test in
+y | Y) echo "test packages are included" ;;
+n | N) echo "test packages are not included" ;;
+*) echo "invalid" ;;
 esac
 
 function createOrTruncateFile() {
@@ -38,22 +40,22 @@ function createOrTruncateFile() {
   fi
 }
 
-createOrTruncateFile ${TMP_NOT_SORTED}
-createOrTruncateFile ${TMP_SORTED}
+createOrTruncateFile $TMP_NOT_SORTED
+createOrTruncateFile $TMP_SORTED
 
 # rocket science
-if [[ ${include_test} == "y" ]]; then
-  find "$SEARCH_PATH"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -exec \
-  sed -n -r '/(public|protected|private|static|void)/p' {} \; |
-  sed -r '/(final|class|import|\;|=|enum|[*]|[/])/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>${TMP_NOT_SORTED}
+if [[ $include_test == "y" ]]; then
+  find "${SEARCH_PATH}"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -exec \
+    sed -n -r '/(public|protected|private|static|void)/p' {} \; |
+    sed -r '/(final|class|import|\;|=|enum|[*]|[/])/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>$TMP_NOT_SORTED
 else
-  find "$SEARCH_PATH"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -not -path "*/test*" -exec \
-  sed -n -r '/(public|protected|private|static|void)/p' {} \; |
-  sed -r '/(final|class|import|\;|=|enum)|[*]|[/]/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>${TMP_NOT_SORTED}
+  find "${SEARCH_PATH}"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -not -path "*/test*" -exec \
+    sed -n -r '/(public|protected|private|static|void)/p' {} \; |
+    sed -r '/(final|class|import|\;|=|enum)|[*]|[/]/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>$TMP_NOT_SORTED
 fi
 
 # next pipeline...
-awk '{ print length($0) " " $0; }' ${TMP_NOT_SORTED} | sort -r -n | uniq | cut -d " " -f2- > ${TMP_SORTED}
+awk '{ print length($0) " " $0; }' $TMP_NOT_SORTED | sort -r -n | uniq | cut -d " " -f2- >$TMP_SORTED
 
 RED='\033[0;31m\e[1m'
 YELLOW='\033[0;33m\e[1m'
@@ -76,12 +78,12 @@ while IFS= read -r line; do
   else
     text=${CYAN}${line}${DEFAULT}
   fi
-  printLineAndSleep "$text""()" 0.08
+  printLineAndSleep "${text}""()" 0.08
   COUNTER=$((COUNTER + 1))
   if [[ "$COUNTER" == "$RESULT_LIMIT" ]]; then
     break
   fi
-done < "$TMP_SORTED"
+done <$TMP_SORTED
 
 printf "\n"
 
@@ -89,5 +91,5 @@ function deleteTempFiles() {
   rm "$1"
 }
 
-deleteTempFiles ${TMP_NOT_SORTED}
-deleteTempFiles ${TMP_SORTED}
+deleteTempFiles $TMP_NOT_SORTED
+deleteTempFiles $TMP_SORTED
