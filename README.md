@@ -18,11 +18,14 @@ Simple bash script to recognize long method names in java source files
     ```sh
     $ cd searchLongMethodNamesInJavaFilesOfProjectDirectories
     ```
-3. Run installtion script
+3. Make script executable
     ```sh
-    $ sudo sh -c 'chmod +x ./install.sh && ./install.sh'
+    $ chmod +x longmethods.sh
     ```
-
+4. Add to path
+    ```sh
+    $ sudo mv longmethods.sh /usr/local/bin/longmethods (move to bin path without *.sh)
+    ```   
 ## Usage 
     longmethods <path to java project directory> <number of max results>
 
