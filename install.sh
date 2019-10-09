@@ -10,4 +10,4 @@ fi
 chmod +x longmethods.sh
 
 # Add to path
-sudo mv longmethods.sh /usr/local/bin/longmethods
+sudo cp longmethods.sh /usr/local/bin/longmethods
