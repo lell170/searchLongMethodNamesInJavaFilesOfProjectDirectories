@@ -5,20 +5,21 @@ TMP_NOT_SORTED="/tmp/temp"
 TMP_SORTED="/tmp/temp_sorted"
 RESULT_LIMIT=$2
 
+# make sure two parameters are given
 if [[ $# -ne 2 ]]; then
-  echo "Please enter two parameters"
+  echo "Please enter the direcory path and the number of max results"
   exit 1
 fi
 
-# make sure given directory exists and is an directory
+# make sure given path exists and is a directory
 if ! [[ -d $SEARCH_PATH ]]; then
-  echo "given directory is not exist"
+  echo "given directory does not exist"
   exit 1
 fi
 
-# make sure second parameter is an number
+# make sure second parameter is a number
 if ! [[ $RESULT_LIMIT =~ ^[0-9]+$ ]]; then
-  echo "given second parameter is not an number"
+  echo "given second parameter is not a number"
   exit 1
 fi
 
@@ -43,7 +44,7 @@ function createOrTruncateFile() {
 createOrTruncateFile $TMP_NOT_SORTED
 createOrTruncateFile $TMP_SORTED
 
-# rocket science
+# rocket science - search directory for long methods
 if [[ $include_test == "y" ]]; then
   find "${SEARCH_PATH}"* -name "*.java" -not -path "*/target*" -not -path "*/out*" -exec \
     sed -n -r '/(public|protected|private|static|void)/p' {} \; |
@@ -54,7 +55,7 @@ else
     sed -r '/(final|class|import|\;|=|enum)|[*]|[/]/d ; /()/s/[(].*$// ; s/.* //; /^.$/d ; /^[A-Z]./d' >>$TMP_NOT_SORTED
 fi
 
-# next pipeline...
+# next pipeline: sort temp-file/methods by length (descending)
 awk '{ print length($0) " " $0; }' $TMP_NOT_SORTED | sort -r -n | uniq | cut -d " " -f2- >$TMP_SORTED
 
 RED='\033[0;31m\e[1m'
@@ -67,7 +68,7 @@ function printLineAndSleep() {
   sleep "$2"
 }
 
-# old while loop
+# print sorted methods in color depending on the length
 COUNTER=0
 while IFS= read -r line; do
   length=$(echo "{$line}" | wc -c)
@@ -87,6 +88,7 @@ done <$TMP_SORTED
 
 printf "\n"
 
+# delete temp files
 function deleteTempFiles() {
   rm "$1"
 }
