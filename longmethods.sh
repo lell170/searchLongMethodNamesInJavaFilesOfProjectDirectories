@@ -109,7 +109,7 @@ printf "\n"
 
 # print statistic
 NUMBER_ALL_METHODS=$(wc -w ${TMP_SORTED} | awk '{ print $1 }')
-echo "(${NUMBER_LONG_METHODS}/${NUMBER_ALL_METHODS}) are too long"
+echo "(${NUMBER_LONG_METHODS}/${NUMBER_ALL_METHODS}) methods are too long"
 
 # delete temp files
 function deleteTempFiles() {
