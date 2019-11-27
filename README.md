@@ -11,15 +11,15 @@ Simple bash script to recognize long method names in java source files
 ## Getting started
 ### Installation
 1. Clone the repo 
-    ```bash
+    ```sh
     $ git clone https://github.com/lell170/searchLongMethodNamesInJavaFilesOfProjectDirectories.git
     ```
 2. Change into cloned directory
-    ```bash
+    ```sh
     $ cd searchLongMethodNamesInJavaFilesOfProjectDirectories
     ```
 3. Install repo by running installation script
-    ```bash
+    ```sh
     $ sudo sh -c 'chmod +x install.sh && ./install.sh'
     ```
    
