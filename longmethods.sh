@@ -87,10 +87,12 @@ function printLineAndSleep() {
 
 # print sorted methods in color depending on the length
 COUNTER=0
+NUMBER_LONG_METHODS=0
 while IFS= read -r line; do
   length=$(echo "{$line}" | wc -c)
   if ((length > IS_LONG_FROM)); then
     text=${RED}${line}${DEFAULT}
+    NUMBER_LONG_METHODS=$((NUMBER_LONG_METHODS + 1))
   elif ((length > ((IS_LONG_FROM - 5)))); then
     text=${YELLOW}${line}${DEFAULT}
   else
@@ -104,6 +106,10 @@ while IFS= read -r line; do
 done <$TMP_SORTED
 
 printf "\n"
+
+# print statistic
+NUMBER_ALL_METHODS=$(wc -w ${TMP_SORTED} | awk '{ print $1 }')
+echo "(${NUMBER_LONG_METHODS}/${NUMBER_ALL_METHODS}) methods are too long"
 
 # delete temp files
 function deleteTempFiles() {
